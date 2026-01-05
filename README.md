@@ -5,7 +5,7 @@ Benchmark para indexação espacial utilizando uma R*-Tree (via `libspatialindex
 ## Estrutura do Projeto
 
 *   **`benchmark_rstar.cpp`**: Código principal para criação do índice e execução de benchmarks de performance.
-*   **`validar.cpp`**: Código para verificar a corretude das consultas k-NN calculando o Recall em comparação com uma varredura linear exata.
+*   **`validar_rtree.cpp`**: Código para verificar a corretude das consultas k-NN calculando o Recall em comparação com uma varredura linear exata (Ground Truth).
 *   **`detalhes_execucao.csv`**: Log gerado pelo benchmark com tempos e estatísticas.
 *   **`validacao_detalhada.csv`**: Log gerado pela validação com métricas de Recall.
 
@@ -13,6 +13,20 @@ Benchmark para indexação espacial utilizando uma R*-Tree (via `libspatialindex
 
 *   Compilador C++ (g++)
 *   Biblioteca `libspatialindex`
+
+## Formato do Dataset
+
+O sistema espera que o dataset seja um arquivo de texto (ex: `.txt` ou `.csv`) onde:
+*   Cada linha representa um ponto (vetor de características).
+*   As coordenadas/valores são separados por **vírgula**.
+*   Não deve haver cabeçalho.
+
+Exemplo de conteúdo (`dataset.txt`):
+```text
+0.12,0.45,0.99,0.32
+0.55,0.12,0.33,0.88
+...
+```
 
 ## Compilação
 
@@ -23,14 +37,14 @@ Para compilar os arquivos, utilize os seguintes comandos:
 g++ benchmark_rstar.cpp -o benchmark -lspatialindex -O3 -std=c++17
 
 # Compilar a Validação
-g++ validar.cpp -o validar -lspatialindex -O3 -std=c++17
+g++ validar_rtree.cpp -o validar -lspatialindex -O3 -std=c++17
 ```
 
 ## Execução
 
 ### 1. Rodar o Benchmark
 
-O benchmark agora aceita parâmetros via linha de comando para suportar múltiplos datasets. O sistema gera automaticamente arquivos de consulta separados para k-NN e Range na pasta `queries/`.
+O benchmark aceita parâmetros via linha de comando para suportar múltiplos datasets. O sistema gera automaticamente arquivos de consulta separados para k-NN e Range na pasta `queries/`.
 
 **Sintaxe**:
 ```bash
@@ -47,9 +61,9 @@ O programa irá:
 2. Gerar (se não existirem) os arquivos `queries/color_32_knn.csv` e `queries/color_32_range.csv`.
 3. Executar as consultas e salvar os resultados em `results/benchmark_color_32.csv`.
 
-### 2. Rodar a Validação de k-NN
+### 2. Rodar a Validação
 
-A validação compara os resultados do k-NN com uma busca linear exata.
+A validação compara os resultados aproximados (se houver otimizações, mas neste caso da R-Tree exata deveria ser 1.0) ou apenas verifica a consistência com uma busca linear exata.
 
 **Sintaxe**:
 ```bash
@@ -61,4 +75,4 @@ A validação compara os resultados do k-NN com uma busca linear exata.
 ./validar ../datasets_processed/Imagenet32_train/color_32.txt 32
 ```
 
-O programa irá ler o arquivo `queries/color_32_knn.csv` e comparar os resultados. Os resultados serão salvos em `results/validacao_color_32.csv`.
+O programa irá ler os arquivos de consulta gerados na etapa anterior (`queries/`), recalcular a resposta exata (Ground Truth) em memória e comparar com a resposta da R-Tree. Os resultados serão salvos em `results/validacao_rtree_color_32.csv`.
