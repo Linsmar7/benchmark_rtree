@@ -271,8 +271,6 @@ int main(int argc, char** argv) {
     auto startQuery = chrono::high_resolution_clock::now();
     
     double low[32], high[32]; // Assumindo max dim 32, mas ideal seria vetor dinâmico se dim for maior
-    // Para segurança, vamos usar vector se dim > 32 ou alocação dinâmica. 
-    // Mas o código original usava array fixo 32. Vamos manter vetor dinâmico para segurança.
     vector<double> lowV(dimension), highV(dimension);
     for(uint32_t d=0; d<dimension; d++) { 
       lowV[d] = qCoords[d] - rangeRadius; 
